@@ -25,6 +25,7 @@ const SwipeoutBtn = React.createClass({
     text: PropTypes.string,
     type: PropTypes.string,
     underlayColor: PropTypes.string,
+    width: PropTypes.number,
   },
 
   getDefaultProps: function() {
@@ -55,10 +56,10 @@ const SwipeoutBtn = React.createClass({
 
     //  apply background color
     if (btn.backgroundColor) styleSwipeoutBtn.push([{ backgroundColor: btn.backgroundColor }]);
-
+    var newWidth = this.props.width || btn.width;
     styleSwipeoutBtn.push([{
       height: btn.height,
-      width: btn.width,
+      width: newWidth
     }]);
 
     var styleSwipeoutBtnComponent = [];
@@ -66,7 +67,7 @@ const SwipeoutBtn = React.createClass({
     //  set button dimensions
     styleSwipeoutBtnComponent.push([{
       height: btn.height,
-      width: btn.width,
+      width: newWidth
     }]);
 
     var styleSwipeoutBtnText = [styles.swipeoutBtnText];
@@ -77,10 +78,9 @@ const SwipeoutBtn = React.createClass({
     return  (
       <NativeButton
         onPress={this.props.onPress}
-        style={styles.swipeoutBtnTouchable}
         underlayColor={this.props.underlayColor}
         disabled={this.props.disabled}
-        style={styleSwipeoutBtn}
+        style={[styles.swipeoutBtnTouchable, styleSwipeoutBtn]}
         textStyle={styleSwipeoutBtnText}>
         {
           (btn.component ?
@@ -107,6 +107,7 @@ const Swipeout = React.createClass({
     scroll: PropTypes.func,
     style: View.propTypes.style,
     sensitivity: PropTypes.number,
+    buttonWidth: PropTypes.number,
   },
 
   getDefaultProps: function() {
@@ -156,10 +157,23 @@ const Swipeout = React.createClass({
       this.props.onOpen(this.props.sectionID, this.props.rowID);
     }
     this.refs.swipeoutContent.measure((ox, oy, width, height) => {
+      let buttonWidth = this.props.buttonWidth || (width/5);
+      var totalRightWidth = 0;
+      if (this.props.right) {
+        for (var i = 0; i < this.props.right.length; i++) {
+          totalRightWidth += this.props.right[i].width || buttonWidth;
+        }
+      }
+      var totalLeftWidth = 0;
+      if (this.props.left) {
+        for (var i = 0; i < this.props.left.length; i++) {
+          totalLeftWidth += this.props.left[i].width || buttonWidth;
+        }
+      }
       this.setState({
-        btnWidth: (width/5),
-        btnsLeftWidth: this.props.left ? (width/5)*this.props.left.length : 0,
-        btnsRightWidth: this.props.right ? (width/5)*this.props.right.length : 0,
+        btnWidth: buttonWidth,
+        btnsLeftWidth: totalLeftWidth,
+        btnsRightWidth: totalRightWidth,
         swiping: true,
         timeStart: (new Date()).getTime(),
       });
@@ -341,6 +355,7 @@ const Swipeout = React.createClass({
   },
 
   _renderButton: function(btn, i) {
+    var overrideWidth = btn.width || this.state.btnWidth;
     return (
       <SwipeoutBtn
           backgroundColor={btn.backgroundColor}
@@ -353,7 +368,7 @@ const Swipeout = React.createClass({
           text={btn.text}
           type={btn.type}
           underlayColor={btn.underlayColor}
-          width={this.state.btnWidth}/>
+          width={overrideWidth}/>
       );
   }
 })
