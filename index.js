@@ -103,6 +103,9 @@ const Swipeout = React.createClass({
     close: PropTypes.bool,
     left: PropTypes.array,
     onOpen: PropTypes.func,
+    onGestureStart: PropTypes.func,
+    onGestureEnd: PropTypes.func,
+    onGestureMove: PropTypes.func,
     right: PropTypes.array,
     scroll: PropTypes.func,
     style: View.propTypes.style,
@@ -153,6 +156,7 @@ const Swipeout = React.createClass({
   },
 
   _handlePanResponderGrant: function(e: Object, gestureState: Object) {
+    this.props.onGestureStart && this.props.onGestureStart();
     if(this.props.onOpen){
       this.props.onOpen(this.props.sectionID, this.props.rowID);
     }
@@ -196,6 +200,7 @@ const Swipeout = React.createClass({
     }
     if (this.state.swiping) {
       //  move content to reveal swipeout
+      this.props.onGestureMove && this.props.onGestureMove(posX);
       if (posX < 0 && this.props.right) this.setState({ contentPos: Math.min(posX, 0) });
       else if (posX > 0 && this.props.left) this.setState({ contentPos: Math.max(posX, 0) });
     }
@@ -225,6 +230,8 @@ const Swipeout = React.createClass({
       var openRight = posX < -openX/10 && !this.state.openedLeft;
       var openLeft = posX > openX/10 && !this.state.openedRight;
     }
+
+    this.props.onGestureEnd && this.props.onGestureEnd(this.props.sectionID, this.props.rowID);
 
     if (this.state.swiping) {
       if (openRight && contentPos < 0 && posX < 0) {
