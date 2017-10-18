@@ -169,6 +169,7 @@ const Swipeout = createReactClass({
     this.props.onGestureStart && this.props.onGestureStart();
     if(this.props.onOpen){
       this.props.onOpen(this.props.sectionID, this.props.rowID);
+    }
     if (this.props.disabled) return;
     if (!this.state.openedLeft && !this.state.openedRight) {
       this._callOnOpen();
